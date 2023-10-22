@@ -3,7 +3,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { User, UserSchema } from './schemas/users.schema';
-import { forwardRef } from '@nestjs/common';
 
 @Module({
   imports: [

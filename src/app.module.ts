@@ -9,6 +9,8 @@ import { ConfigService } from '@nestjs/config';
 import { AppConfigModule } from './config.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './guards/roles.guard'; // Import the RolesGuard from the correct path
+import { MoviesService } from './movies/movies.service';
+import { MoviesModule } from './movies/movies.module';
 
 
 @Module({
@@ -21,7 +23,8 @@ import { RolesGuard } from './guards/roles.guard'; // Import the RolesGuard from
       }),
       inject: [ConfigService],
     }), AuthModule,
-    AppConfigModule
+    AppConfigModule,
+    MoviesModule
   ],
   controllers: [AppController],
   providers: [
