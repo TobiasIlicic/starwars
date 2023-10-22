@@ -5,22 +5,28 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Model } from "mongoose";
-import { InjectConnection } from '@nestjs/mongoose';
-import { Mongoose } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 const ObjectId = require('mongoose').Types.ObjectId;
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>
-    ) {}
-  
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const user = await this.userModel.create(createUserDto);
-    return user;
-}
+  ) { }
 
-  async findAll(): Promise<User[]>  {
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    let modifiedDto = {
+      ...createUserDto,
+      _id: new ObjectId(),
+      roles: ['Usuario Regular'], // Assign the default role here
+    }; 
+    modifiedDto.password = await bcrypt.hash(modifiedDto.password, 10);
+    let user = await this.userModel.create(modifiedDto);
+    delete user.password
+    return user;
+  }
+
+  async findAll(): Promise<User[]> {
     return this.userModel.find();
   }
 
@@ -41,7 +47,7 @@ export class UsersService {
 
   async login(loginUserDto: LoginUserDto) {
     const user = await this.userModel.findOne({ username: loginUserDto.username }).exec()
-    if(!(user.password == loginUserDto.password)) return "Usuario o contrasena incorretos"
+    if (!(user.password == loginUserDto.password)) return "Usuario o contrasena incorretos"
     return `OK`;
   }
 }

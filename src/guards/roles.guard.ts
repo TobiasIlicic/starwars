@@ -3,28 +3,25 @@ import {
   ExecutionContext,
   Injectable,
   UnauthorizedException,
-} from '@nestjs/common';
+} from '@nestjs/common'; import { Reflector } from '@nestjs/core';
+import { ROLES_KEY } from 'src/decorators/roles.decorator';
+import { Role } from '../enums/role.enum';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from 'src/decorators/public.decorator';
-import { ConfigService } from '@nestjs/config';
-
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class RolesGuard implements CanActivate {
   constructor(private jwtService: JwtService, private reflector: Reflector, private configService: ConfigService) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) {
-      // 💡 See this condition
+    if (!requiredRoles) {
       return true;
     }
-
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
@@ -42,7 +39,8 @@ export class AuthGuard implements CanActivate {
     } catch {
       throw new UnauthorizedException();
     }
-    return true;
+    const user = request['user']
+    return requiredRoles.some((role) => user.roles?.includes(role));
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

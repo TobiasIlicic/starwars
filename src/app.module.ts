@@ -7,6 +7,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { ConfigService } from '@nestjs/config';
 import { AppConfigModule } from './config.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './guards/roles.guard'; // Import the RolesGuard from the correct path
+
 
 @Module({
   imports: [
@@ -17,10 +20,16 @@ import { AppConfigModule } from './config.module';
         uri: `mongodb+srv://${configService.get('DATABASE_USER')}:${configService.get('DATABASE_PASSWORD')}@clustertobi.esunpt6.mongodb.net/?retryWrites=true&w=majority`,
       }),
       inject: [ConfigService],
-    }),    AuthModule,
+    }), AuthModule,
     AppConfigModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    }
+  ],
 })
 export class AppModule { }
