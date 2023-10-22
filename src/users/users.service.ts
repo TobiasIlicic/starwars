@@ -1,26 +1,47 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { User } from './schemas/users.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { Model } from "mongoose";
+import { InjectConnection } from '@nestjs/mongoose';
+import { Mongoose } from 'mongoose';
+const ObjectId = require('mongoose').Types.ObjectId;
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>
+    ) {}
+  
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const user = await this.userModel.create(createUserDto);
+    return user;
+}
+
+  async findAll(): Promise<User[]>  {
+    return this.userModel.find();
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findOne(username: string): Promise<User> {
+    return this.userModel.findOne({ username: username }).exec();
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
+  /*
+  update(id: string, updateUserDto: UpdateUserDto) {
+    let user = this.userModel.findOne({ _id: id }).exec();
+    // Tirar error cuando no encuentra el user
     return `This action updates a #${id} user`;
+  }*/
+
+  async remove(id: string) {
+    const user = await this.userModel.findByIdAndRemove({ _id: id }).exec()
+    return `OK`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async login(loginUserDto: LoginUserDto) {
+    const user = await this.userModel.findOne({ username: loginUserDto.username }).exec()
+    if(!(user.password == loginUserDto.password)) return "Usuario o contrasena incorretos"
+    return `OK`;
   }
 }
