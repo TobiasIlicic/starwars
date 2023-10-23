@@ -32,12 +32,19 @@ export class UsersService {
   async findOne(username: string): Promise<User> {
     return this.userModel.findOne({ username: username }).exec();
   }
-  /*
+  
   update(id: string, updateUserDto: UpdateUserDto) {
     let user = this.userModel.findOne({ _id: id }).exec();
-    // Tirar error cuando no encuentra el user
-    return `This action updates a #${id} user`;
-  }*/
+    if (!user) {
+      throw new Error('La pelicula que esta intentando actualizar no existe.');
+    }
+    // Actualizo solo los campos que me mandan
+    Object.keys(updateUserDto).forEach((key) => {
+      if (updateUserDto[key] !== undefined) {
+        user[key] = updateUserDto[key];
+      }
+    });
+  }
 
   async remove(id: string): Promise<string> {
     const user = await this.userModel.findByIdAndRemove({ _id: id }).exec()
