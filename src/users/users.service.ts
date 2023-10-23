@@ -25,7 +25,7 @@ export class UsersService {
     };
     modifiedDto.password = await bcrypt.hash(modifiedDto.password, 10);
     let user = await this.userModel.create(modifiedDto);
-    delete user.password
+    user.password = '' // Borro la contrasena antes de devolverla
     return user;
   }
 
