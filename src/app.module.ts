@@ -11,6 +11,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './guards/roles.guard'; // Import the RolesGuard from the correct path
 import { MoviesService } from './movies/movies.service';
 import { MoviesModule } from './movies/movies.module';
+import { JwtModule } from '@nestjs/jwt';
 
 
 @Module({
@@ -22,7 +23,15 @@ import { MoviesModule } from './movies/movies.module';
         uri: `mongodb+srv://${configService.get('DATABASE_USER')}:${configService.get('DATABASE_PASSWORD')}@clustertobi.esunpt6.mongodb.net/?retryWrites=true&w=majority`,
       }),
       inject: [ConfigService],
-    }), AuthModule,
+    }),
+    JwtModule.registerAsync({
+      useFactory: async (configService: ConfigService) => ({
+        secret: JSON.parse(configService.get('JWTCONSTANTS')).secret,
+        signOptions: { expiresIn: '1h' },
+      }),
+      inject: [ConfigService],
+    }),
+    AuthModule,
     AppConfigModule,
     MoviesModule
   ],
