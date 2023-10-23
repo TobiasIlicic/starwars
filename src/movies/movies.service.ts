@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from "mongoose";
+import { Movie } from './schemas/movies.schema';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
-import { Movie } from './schemas/movies.schema';
+
 const ObjectId = require('mongoose').Types.ObjectId;
 
 @Injectable()

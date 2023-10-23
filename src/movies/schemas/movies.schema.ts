@@ -1,13 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, ObjectId } from 'mongoose';
-const ObjectId = require('mongoose').Types.ObjectId;
+import { Document } from 'mongoose';
 
-export type MovieDocument = HydratedDocument<Movie>;
+export type MovieDocument = Movie & Document;
 
 @Schema()
 export class Movie {
-  @Prop()
-  _id: ObjectId;
   @Prop()
   title: string;
   @Prop()
@@ -21,22 +18,39 @@ export class Movie {
   @Prop()
   release_date: Date;
   @Prop()
-  species: [string];
+  species: string[];
   @Prop()
-  starships: [string];
+  starships: string[];
   @Prop()
-  vehicles: [string];
+  vehicles: string[];
   @Prop()
-  characters: [string];
+  characters: string[];
   @Prop()
-  planets: [string];
+  planets: string[];
   @Prop()
   url: string;
   @Prop()
   created: string;
   @Prop()
-  edited: string
-
+  edited: string;
 }
 
 export const MovieSchema = SchemaFactory.createForClass(Movie);
+
+// movie.interface.ts
+export interface Movie {
+  title: string;
+  episode_id: number;
+  opening_crawl: string;
+  director: string;
+  producer: string;
+  release_date: Date;
+  species: string[];
+  starships: string[];
+  vehicles: string[];
+  characters: string[];
+  planets: string[];
+  url: string;
+  created: string;
+  edited: string;
+}

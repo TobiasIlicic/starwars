@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { MoviesService } from './movies.service';
 import { MoviesController } from './movies.controller';
 import { Movie, MovieSchema } from './schemas/movies.schema';
@@ -12,4 +12,4 @@ import { Movie, MovieSchema } from './schemas/movies.schema';
   providers: [MoviesService],
   exports: [MoviesService]
 })
-export class MoviesModule {}
+export class MoviesModule { }
