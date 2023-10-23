@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus  } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from "mongoose";
 import { Movie } from './schemas/movies.schema';
@@ -29,7 +29,7 @@ export class MoviesService {
   async findOne(id: string): Promise<Movie> {
     let movie = await this.movieModel.findById(new ObjectId(id))
     if (!movie) {
-      throw new Error('La pelicula no existe.');
+      throw new HttpException('La pelicula no existe.', HttpStatus.INTERNAL_SERVER_ERROR);
     }
     return movie
   }
@@ -37,7 +37,7 @@ export class MoviesService {
   async update(id: string, updateMovieDto: UpdateMovieDto): Promise<Movie> {
     let movie = await this.movieModel.findById(new ObjectId(id));
     if (!movie) {
-      throw new Error('La pelicula que esta intentando actualizar no existe.');
+      throw new HttpException('La pelicula que esta intentando actualizar no existe.', HttpStatus.INTERNAL_SERVER_ERROR);
     }
     // Actualizo solo los campos que me mandan
     Object.keys(updateMovieDto).forEach((key) => {

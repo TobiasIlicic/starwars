@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/users.schema';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -14,11 +14,15 @@ export class UsersService {
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+    let userExists = await this.userModel.findOne({ username: createUserDto.username })
+    if (userExists) {
+      throw new HttpException('El username que esta ingresando ya existe', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     let modifiedDto = {
       ...createUserDto,
       _id: new ObjectId(),
       roles: ['Usuario Regular'], // Asigno el rol por default
-    }; 
+    };
     modifiedDto.password = await bcrypt.hash(modifiedDto.password, 10);
     let user = await this.userModel.create(modifiedDto);
     delete user.password
@@ -30,13 +34,13 @@ export class UsersService {
   }
 
   async findOne(username: string): Promise<User> {
-    return this.userModel.findOne({ username: username }).exec();
+    return await this.userModel.findOne({ username: username })
   }
-  
-  update(id: string, updateUserDto: UpdateUserDto) {
-    let user = this.userModel.findOne({ _id: id }).exec();
+
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    let user = await this.userModel.findOne({ _id: id })
     if (!user) {
-      throw new Error('La pelicula que esta intentando actualizar no existe.');
+      throw new HttpException('El usuario que esta intentando actualizar no existe.', HttpStatus.INTERNAL_SERVER_ERROR);
     }
     // Actualizo solo los campos que me mandan
     Object.keys(updateUserDto).forEach((key) => {
